@@ -148,7 +148,7 @@ def start_sc(screen):
         "So, you need to know rules, don't you?",
         "Here they are:",
         "You can shoot the red squares.",
-        "Five score points and you get one more HP.",
+        "Ten score points and you get one more HP.",
         "You need HP to destroy red squares using your body.",
         "No HP - you're defeated.",
         "If you miss a red square - you're defeated too.",
