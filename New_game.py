@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 import sys
-''''Утчека фпс из-за границ'''
+
 all_sprites = pygame.sprite.Group()
 b_edge = pygame.sprite.Group()
 t_edge = pygame.sprite.Group()
