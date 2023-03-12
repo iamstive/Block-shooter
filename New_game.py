@@ -152,7 +152,7 @@ def start_sc(screen):
         "You need HP to destroy red squares using your body.",
         "No HP - you're defeated.",
         "If you miss a red square - you're defeated too.",
-        "LMB - start the game."
+        "Left-click - start the game."
         "ESC - exit the game."
     ]
     for i in s_text:
