@@ -2,9 +2,10 @@ import pygame
 import random
 import time
 import sys
-
+''''Утчека фпс из-за границ'''
 all_sprites = pygame.sprite.Group()
-edge = pygame.sprite.Group()
+b_edge = pygame.sprite.Group()
+t_edge = pygame.sprite.Group()
 bullet = pygame.sprite.Group()
 playerg = pygame.sprite.Group()
 enemy = pygame.sprite.Group()
@@ -55,7 +56,11 @@ class Bullet(pygame.sprite.Sprite):
         self.add(bullet)
 
     def update(self):
-        self.rect = self.rect.move(0, -5)
+        if pygame.sprite.spritecollideany(self, t_edge):
+            self.kill()
+            #print("Victory")
+        else:
+            self.rect = self.rect.move(0, -5)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -82,7 +87,7 @@ class Enemy(pygame.sprite.Sprite):
             SCORE += 1
             if SCORE %10 == 0 and SCORE != 0:
                 HP+=1
-        elif pygame.sprite.spritecollideany(self, edge):
+        elif pygame.sprite.spritecollideany(self, b_edge):
             self.kill()
             enemy_alive = False
             DEFEAT = True
@@ -90,16 +95,24 @@ class Enemy(pygame.sprite.Sprite):
             self.rect = self.rect.move(0, 1)
 
 
-class Edge(pygame.sprite.Sprite):
+class b_Edge(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprites)
+        self.image = pygame.Surface((700,0))
+        self.image.fill((0, 0, 0))
+        self.rect = pygame.Rect(0, 700, 700, 1)
+        pygame.draw.rect(self.image, (0, 0, 0), self.rect, 3)
+        self.add(b_edge)
+
+
+class t_Edge(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprites)
         self.image = pygame.Surface((700, 0))
-        self.color = pygame.Color((0, 0, 0))
-        self.image.fill(self.color)
-        self.rect = pygame.Rect(0, 700, 700, 10)
-        pygame.draw.rect(self.image, self.color, self.rect, 3)
-        pygame.draw.line(screen, (0, 255, 0), (0, 400), (700, 400), 1)
-        self.add(edge)
+        self.image.fill((255, 255, 255))
+        self.rect = pygame.Rect(0, 10, 700, 1)
+        pygame.draw.rect(self.image, (255, 255, 255), self.rect, 3)
+        self.add(t_edge)
 
 
 def defeat_sc(screen):
@@ -119,8 +132,11 @@ def score(screen):
     font = pygame.font.Font(None, 40)
     text = font.render(f"Score: {SCORE}", True, (0, 102, 204))
     text1 = font.render(f"HP: {HP}", True, (0, 102, 204))
+    text2 = font.render(f"FPS: {clock.get_fps()}", True, (0, 102, 204))
     screen.blit(text, (0, 0))
     screen.blit(text1, (600, 0))
+    screen.blit(text2, (550, 500))
+    pygame.draw.line(screen, (0, 255, 0), (0, 400), (700, 400), 1)
 
 
 def start_sc(screen):
@@ -136,12 +152,17 @@ def start_sc(screen):
         "You need HP to destroy red squares using your body.",
         "No HP - you're defeated.",
         "If you miss a red square - you're defeated too.",
-        "LMB - start game."
+        "LMB - start the game."
+        "ESC - exit the game."
     ]
     for i in s_text:
         screen.blit(font.render(i, True, (0, 102, 204)), (j, l))
         l+=40
 
+
+def clear():
+    for i in all_sprites:
+        i.kill()
 
 pygame.init()
 size = (700, 700)
@@ -149,7 +170,7 @@ BLACK = (0,0,0)
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Chippin' In")
 screen.fill(BLACK)
-fps = 120
+fps = 60*2
 clock = pygame.time.Clock()
 
 
@@ -158,12 +179,16 @@ DEFEAT = False
 SCORE = 0
 HP = 5
 START = True
-
+print(all_sprites)
 
 for i in range(random.randint(5, 5)): 
     Enemy()
 enemy_spawn = False
 enemy_alive = False
+
+
+t_Edge()
+b_Edge()
 
 
 while True:
@@ -194,8 +219,11 @@ while True:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
-    Edge()
+                if event.key == pygame.K_TAB:
+                    clear()
+
     score(screen)
+    print(all_sprites)
 
     if not enemy_spawn:
         Enemy()
@@ -212,7 +240,4 @@ while True:
     all_sprites.update()
     clock.tick(fps)
     pygame.display.flip()
-
-
-
 
