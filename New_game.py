@@ -15,44 +15,33 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x: int, y: int):
         super().__init__(all_sprites)
         self.image = pygame.Surface((20, 20))
-        self.color = pygame.Color((102, 178, 255))
-        self.image.fill(self.color)
+        self.image.fill((102, 178, 255))
         self.x = x
         self.y = y
         self.rect = pygame.Rect(self.x, self.y, 20, 20)
-        pygame.draw.rect(self.image, self.color, self.rect, 1)
+        pygame.draw.rect(self.image, (102, 178, 255), self.rect, 1)
         self.add(playerg)
     
-    def move(self, evx, evy):
-        if 1:
-            x = evx
-            y = evy
-            while self.x < x and x <= 685:
-                self.x += 1
-                self.rect = self.rect.move(1, 0)
-            while self.x > x and x <= 685:
-                self.x -= 1
-                self.rect = self.rect.move(-1, 0)
-            while self.y < y and y <= 685 and y >= 400:
-                self.y += 1
-                self.rect = self.rect.move(0, 1)
-            while self.y > y and y <= 685 and y >= 400:
-                self.y -= 1
-                self.rect = self.rect.move(0, -1)
+    def update(self):
+        if pygame.mouse.get_pos()[1] <= 400:
+            self.rect.center = pygame.mouse.get_pos()[0], 410
+        else:
+            self.rect.center = pygame.mouse.get_pos()
+        
+
     def shoot(self):
-        Bullet(self.x+7, self.y+1)
+        Bullet(self.rect.center[0], self.rect.center[1]+1)
 
 
 class Bullet(pygame.sprite.Sprite): 
     def __init__(self, x: int, y: int):
         super().__init__(all_sprites)
         self.image = pygame.Surface((5, 15))
-        self.color = pygame.Color((204, 0, 102))
-        self.image.fill(self.color)
+        self.image.fill((204, 0, 102))
         self.x = x
         self.y = y
         self.rect = pygame.Rect(self.x, self.y, 5, 15)
-        pygame.draw.rect(self.image, self.color, self.rect, 3)
+        pygame.draw.rect(self.image, (204, 0, 102), self.rect, 3)
         self.add(bullet)
 
     def update(self):
@@ -67,24 +56,23 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprites)
         self.image = pygame.Surface((30, 30))
-        self.color = pygame.Color((153, 0, 76))
-        self.image.fill(self.color)
+        self.image.fill((153, 0, 76))
         self.rect = pygame.Rect(random.randint(10, 650), 0, 30, 30)
-        pygame.draw.rect(self.image, self.color, self.rect, 3)
+        pygame.draw.rect(self.image, (153, 0, 76), self.rect, 3)
         self.add(enemy)
     
     def update(self):
         global DEFEAT, SCORE
         global enemy_alive
-        global HP
+        global HP, enemy_HP
         if pygame.sprite.spritecollideany(self, playerg):
             HP -= 1
             self.kill()
             enemy_alive = True
         elif pygame.sprite.spritecollideany(self, bullet):
+            SCORE += 1
             self.kill()
             enemy_alive = True
-            SCORE += 1
             if SCORE %10 == 0 and SCORE != 0:
                 HP+=1
         elif pygame.sprite.spritecollideany(self, b_edge):
@@ -93,6 +81,7 @@ class Enemy(pygame.sprite.Sprite):
             DEFEAT = True
         else:
             self.rect = self.rect.move(0, 1)
+
 
 
 class b_Edge(pygame.sprite.Sprite):
@@ -117,7 +106,7 @@ class t_Edge(pygame.sprite.Sprite):
 
 def defeat_sc(screen):
     for i in all_sprites:
-        i.kill
+        i.kill()
     screen.fill((0, 0, 0))
     u = 100
     font = pygame.font.Font(None, u)
@@ -152,12 +141,23 @@ def start_sc(screen):
         "You need HP to destroy red squares using your body.",
         "No HP - you're defeated.",
         "If you miss a red square - you're defeated too.",
-        "Left-click - start the game."
-        "ESC - exit the game."
+        "Left-click - start the game.",
+        "ESC - exit the game.",
+        "Created by Ho1ocron."
     ]
     for i in s_text:
         screen.blit(font.render(i, True, (0, 102, 204)), (j, l))
         l+=40
+
+def enemy_spawn_fun():
+    global enemy_number, enemy_first_spawn
+    if enemy_first_spawn:
+        for _ in range(enemy_number):
+            Enemy()
+            enemy_first_spawn = False
+    else:
+        for i in range(q):
+            Enemy()
 
 
 def clear():
@@ -168,9 +168,9 @@ pygame.init()
 size = (700, 700)
 BLACK = (0,0,0)
 screen = pygame.display.set_mode(size)
-pygame.display.set_caption("Chippin' In")
+pygame.display.set_caption("Chippin'In")
 screen.fill(BLACK)
-fps = 60*2
+fps = 120
 clock = pygame.time.Clock()
 
 
@@ -181,11 +181,12 @@ HP = 5
 START = True
 print(all_sprites)
 
-for i in range(random.randint(5, 5)): 
-    Enemy()
+enemy_number = 5
+enemy_HP = random.randint(1, 5)
 enemy_spawn = False
 enemy_alive = False
-
+enemy_first_spawn = True
+q = 1
 
 t_Edge()
 b_Edge()
@@ -208,10 +209,6 @@ while True:
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            if event.type == pygame.MOUSEMOTION: 
-                _x = event.pos[0]
-                _y = event.pos[1]
-                player1.move(_x, _y)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -221,12 +218,12 @@ while True:
                     sys.exit()
                 if event.key == pygame.K_TAB:
                     clear()
-
+    player1.update()
     score(screen)
-    print(all_sprites)
+    #print(all_sprites)
 
     if not enemy_spawn:
-        Enemy()
+        enemy_spawn_fun()
         enemy_spawn = True
     if enemy_alive:
         enemy_spawn = False
