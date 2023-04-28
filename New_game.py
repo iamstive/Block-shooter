@@ -164,77 +164,81 @@ def clear():
     for i in all_sprites:
         i.kill()
 
-pygame.init()
-size = (700, 700)
-BLACK = (0,0,0)
-screen = pygame.display.set_mode(size)
-pygame.display.set_caption("Chippin'In")
-screen.fill(BLACK)
-fps = 120
-clock = pygame.time.Clock()
-
-
-player1 = Player(110, 510)
-DEFEAT = False
-SCORE = 0
-HP = 5
-START = True
-print(all_sprites)
-
-enemy_number = 5
-enemy_HP = random.randint(1, 5)
-enemy_spawn = False
-enemy_alive = False
-enemy_first_spawn = True
-q = 1
-
-t_Edge()
-b_Edge()
-
-
-while True:
+def start():
+    global enemy_first_spawn, enemy_number, enemy_HP, enemy_alive, enemy_spawn, q, SCORE, DEFEAT, HP, START, clock
+    pygame.init()
+    size = (700, 700)
+    BLACK = (0,0,0)
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("Chippin'In")
     screen.fill(BLACK)
-    while START:
-        start_sc(screen)
+    fps = 120
+    clock = pygame.time.Clock()
+
+
+    player1 = Player(110, 510)
+    DEFEAT = False
+    SCORE = 0
+    HP = 5
+    START = True
+    print(all_sprites)
+
+    enemy_number = 5
+    enemy_HP = random.randint(1, 5)
+    enemy_spawn = False
+    enemy_alive = False
+    enemy_first_spawn = True
+    q = 1
+
+    t_Edge()
+    b_Edge()
+
+
+    while True:
+        screen.fill(BLACK)
+        while START:
+            start_sc(screen)
+            for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        START = False
+                        sys.exit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 1:
+                            START = False
+            pygame.display.flip()
+        all_sprites.draw(screen)
+            
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    START = False
                     sys.exit()
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        START = False
+                        player1.shoot()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        sys.exit()
+                    if event.key == pygame.K_TAB:
+                        clear()
+        player1.update()
+        score(screen)
+        #print(all_sprites)
+
+        if not enemy_spawn:
+            enemy_spawn_fun()
+            enemy_spawn = True
+        if enemy_alive:
+            enemy_spawn = False
+            enemy_alive = False
+        if HP == 0:
+            DEFEAT = True
+        if DEFEAT:
+            defeat_sc(screen)
+            pygame.mouse.set_visible(True)
+
+        all_sprites.update()
+        clock.tick(fps)
         pygame.display.flip()
-    all_sprites.draw(screen)
-        
-    for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    player1.shoot()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    sys.exit()
-                if event.key == pygame.K_TAB:
-                    clear()
-    player1.update()
-    score(screen)
-    #print(all_sprites)
-
-    if not enemy_spawn:
-        enemy_spawn_fun()
-        enemy_spawn = True
-    if enemy_alive:
-        enemy_spawn = False
-        enemy_alive = False
-    if HP == 0:
-        DEFEAT = True
-    if DEFEAT:
-        defeat_sc(screen)
-        pygame.mouse.set_visible(True)
-
-    all_sprites.update()
-    clock.tick(fps)
-    pygame.display.flip()
-
+if __name__ == "__main__":
+    start()
