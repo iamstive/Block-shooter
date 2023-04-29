@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import New_game
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtGui import QPalette, QBrush, QPixmap
@@ -22,70 +23,76 @@ class App(QWidget):
         self.initUI()
     
     def initUI(self):
+        
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        palette = QPalette()
-        palette.setBrush(QPalette.Background, QBrush(QPixmap("back.png")))
-        self.setPalette(palette)
+        self.palette = QPalette()
+        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("back.png")))
+        self.setPalette(self.palette)
         
+
         #: start button
-        button = QPushButton('Start', self)
-        button.setFont(QFont('Arial', 40))
-        button.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
-        button.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
-        button.setToolTip('This is an example button')
-        button.resize(200, 50)
-        button.move(300,150)
-        button.clicked.connect(self.start)
+        self.button = QPushButton('Start', self)
+        self.button.setFont(QFont('Arial', 40))
+        self.button.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button.setToolTip('This is an example button')
+        self.button.resize(200, 50)
+        self.button.move(300,150)
+        self.button.clicked.connect(self.start)
         
         #: map button
-        button1 = QPushButton('Map', self)
-        button1.setFont(QFont('Arial', 40))
-        button1.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
-        button1.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
-        button1.setToolTip('This is an example button')
-        button1.resize(200, 50)
-        button1.move(300,212.5)
-        button1.clicked.connect(self.map)
+        self.button1 = QPushButton('Map', self)
+        self.button1.setFont(QFont('Arial', 40))
+        self.button1.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button1.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button1.setToolTip('This is an example button')
+        self.button1.resize(200, 50)
+        self.button1.move(300,212)
+        self.button1.clicked.connect(self.map)
 
         #: shop button
-        button2 = QPushButton('Shop', self)
-        button2.setFont(QFont('Arial', 40))
-        button2.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
-        button2.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
-        button2.setToolTip('This is an example button')
-        button2.resize(200, 50)
-        button2.move(300,275)
-        button2.clicked.connect(self.shop)
+        self.button2 = QPushButton('Shop', self)
+        self.button2.setFont(QFont('Arial', 40))
+        self.button2.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button2.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button2.setToolTip('This is an example button')
+        self.button2.resize(200, 50)
+        self.button2.move(300,275)
+        self.button2.clicked.connect(self.shop)
         
         # special button
-        button3 = QPushButton('Special', self)
-        button3.setFont(QFont('Arial', 40))
-        button3.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
-        button3.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
-        button3.setToolTip('This is an example button')
-        button3.resize(200, 50)
-        button3.move(300,337.5)
-        button3.clicked.connect(self.special)
+        self.button3 = QPushButton('Special', self)
+        self.button3.setFont(QFont('Arial', 40))
+        self.button3.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button3.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button3.setToolTip('This is an example button')
+        self.button3.resize(200, 50)
+        self.button3.move(300,337)
+        self.button3.clicked.connect(self.special)
 
         #: special button 2
-        button4 = QPushButton('Exit', self)
-        button4.setFont(QFont('Arial', 40))
-        button4.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
-        button4.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
-        button4.setToolTip('This is an example button')
-        button4.resize(200, 50)
-        button4.move(300,400)
-        button4.clicked.connect(self.special2)
+        self.button4 = QPushButton('Exit', self)
+        self.button4.setFont(QFont('Arial', 40))
+        self.button4.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button4.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button4.setToolTip('This is an example button')
+        self.button4.resize(200, 50)
+        self.button4.move(300,400)
+        self.button4.clicked.connect(self.special2)
 
         self.show()
-
+        print("A")
+        
 
     @pyqtSlot()
     def start(self):
-        New_game.start()
+        print("!")
+        self.startg = True
+        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("img.jpeg")))
+        self.setPalette(self.palette)
+        self.game()
 
-    
     @pyqtSlot()
     def map(self):
         print(os.getpid())
@@ -101,9 +108,14 @@ class App(QWidget):
     @pyqtSlot()
     def special2(self):
         sys.exit()
+    
+    def game(self):
+        os.system("python New_game.py 1")
         
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
+
+
