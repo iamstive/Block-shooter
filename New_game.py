@@ -1,244 +1,113 @@
-import pygame
-import random
-import time
+import os
 import sys
-
-all_sprites = pygame.sprite.Group()
-b_edge = pygame.sprite.Group()
-t_edge = pygame.sprite.Group()
-bullet = pygame.sprite.Group()
-playerg = pygame.sprite.Group()
-enemy = pygame.sprite.Group()
-
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self, x: int, y: int):
-        super().__init__(all_sprites)
-        self.image = pygame.Surface((20, 20))
-        self.image.fill((102, 178, 255))
-        self.x = x
-        self.y = y
-        self.rect = pygame.Rect(self.x, self.y, 20, 20)
-        pygame.draw.rect(self.image, (102, 178, 255), self.rect, 1)
-        self.add(playerg)
-    
-    def update(self):
-        if pygame.mouse.get_pos()[1] <= 400:
-            self.rect.center = pygame.mouse.get_pos()[0], 410
-        else:
-            self.rect.center = pygame.mouse.get_pos()
-        
-
-    def shoot(self):
-        Bullet(self.rect.center[0], self.rect.center[1]+1)
+import MainEngine
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt5.QtGui import QPalette, QBrush, QPixmap
+from PyQt5.QtGui import QPalette
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import pyqtSlot
+import threading
 
 
-class Bullet(pygame.sprite.Sprite): 
-    def __init__(self, x: int, y: int):
-        super().__init__(all_sprites)
-        self.image = pygame.Surface((5, 15))
-        self.image.fill((204, 0, 102))
-        self.x = x
-        self.y = y
-        self.rect = pygame.Rect(self.x, self.y, 5, 15)
-        pygame.draw.rect(self.image, (204, 0, 102), self.rect, 3)
-        self.add(bullet)
+class App(QWidget):
 
-    def update(self):
-        if pygame.sprite.spritecollideany(self, t_edge):
-            self.kill()
-            #print("Victory")
-        else:
-            self.rect = self.rect.move(0, -5)
-
-
-class Enemy(pygame.sprite.Sprite):
     def __init__(self):
-        super().__init__(all_sprites)
-        self.image = pygame.Surface((30, 30))
-        self.image.fill((153, 0, 76))
-        self.rect = pygame.Rect(random.randint(10, 650), 0, 30, 30)
-        pygame.draw.rect(self.image, (153, 0, 76), self.rect, 3)
-        self.add(enemy)
-    
-    def update(self):
-        global DEFEAT, SCORE
-        global enemy_alive
-        global HP, enemy_HP
-        if pygame.sprite.spritecollideany(self, playerg):
-            HP -= 1
-            self.kill()
-            enemy_alive = True
-        elif pygame.sprite.spritecollideany(self, bullet):
-            SCORE += 1
-            self.kill()
-            enemy_alive = True
-            if SCORE %10 == 0 and SCORE != 0:
-                HP+=1
-        elif pygame.sprite.spritecollideany(self, b_edge):
-            self.kill()
-            enemy_alive = False
-            DEFEAT = True
-        else:
-            self.rect = self.rect.move(0, 1)
+        super().__init__()
+        self.title = 'Cold Road Alpha 0.1'
+        self.left = 760
+        self.top = 200
+        self.width = 800
+        self.height = 600
+        self.initUI()
+
+    def initUI(self):
+
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.palette = QPalette()
+        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("CR0.1.png")))
+        self.setPalette(self.palette)
+
+        #: start button
+        self.button = QPushButton('Start', self)
+        self.button.setFont(QFont('Arial', 40))
+        self.button.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button.setToolTip('This is an example button')
+        self.button.resize(200, 50)
+        self.button.move(300, 150)
+        self.button.clicked.connect(self.start)
+
+        #: map button
+        self.button1 = QPushButton('Map', self)
+        self.button1.setFont(QFont('Arial', 40))
+        self.button1.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button1.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button1.setToolTip('This is an example button')
+        self.button1.resize(200, 50)
+        self.button1.move(300, 212)
+        self.button1.clicked.connect(self.map)
+
+        #: shop button
+        self.button2 = QPushButton('Shop', self)
+        self.button2.setFont(QFont('Arial', 40))
+        self.button2.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button2.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button2.setToolTip('This is an example button')
+        self.button2.resize(200, 50)
+        self.button2.move(300, 275)
+        self.button2.clicked.connect(self.shop)
+
+        # special button
+        self.button3 = QPushButton('Special', self)
+        self.button3.setFont(QFont('Arial', 40))
+        self.button3.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button3.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button3.setToolTip('This is an example button')
+        self.button3.resize(200, 50)
+        self.button3.move(300, 337)
+        self.button3.clicked.connect(self.special)
+
+        #: special button 2
+        self.button4 = QPushButton('Exit', self)
+        self.button4.setFont(QFont('Arial', 40))
+        self.button4.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button4.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
+        self.button4.setToolTip('This is an example button')
+        self.button4.resize(200, 50)
+        self.button4.move(300, 400)
+        self.button4.clicked.connect(self.special2)
+
+        self.show()
+
+    @pyqtSlot()
+    def start(self):
+        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("cro1.png")))
+        self.setPalette(self.palette)
+        launch = threading.Timer(1, self.game)
+        launch.start()
+
+    @pyqtSlot()
+    def map(self):
+        print(os.getpid())
+
+    @pyqtSlot()
+    def shop(self):
+        print('MAGAZIN')
+
+    @pyqtSlot()
+    def special(self):
+        print('WHAAAT')
+
+    @pyqtSlot()
+    def special2(self):
+        sys.exit()
+
+    def game(self):
+        os.system("python MainEngine.py 1")
 
 
-
-class b_Edge(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(all_sprites)
-        self.image = pygame.Surface((700,0))
-        self.image.fill((0, 0, 0))
-        self.rect = pygame.Rect(0, 700, 700, 1)
-        pygame.draw.rect(self.image, (0, 0, 0), self.rect, 3)
-        self.add(b_edge)
-
-
-class t_Edge(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(all_sprites)
-        self.image = pygame.Surface((700, 0))
-        self.image.fill((255, 255, 255))
-        self.rect = pygame.Rect(0, 10, 700, 1)
-        pygame.draw.rect(self.image, (255, 255, 255), self.rect, 3)
-        self.add(t_edge)
-
-
-def defeat_sc(screen):
-    for i in all_sprites:
-        i.kill()
-    screen.fill((0, 0, 0))
-    u = 100
-    font = pygame.font.Font(None, u)
-    u -= 70
-    text = font.render("DEFEAT", True, (153, 0, 76))
-    text1 = font.render(f"Score: {SCORE}", True, (0, 102, 204))
-    screen.blit(text, (700/len("DEFEAT"), 350))
-    screen.blit(text1, (700/len(f"Score: {SCORE}"), 420))
-
-
-def score(screen):
-    font = pygame.font.Font(None, 40)
-    text = font.render(f"Score: {SCORE}", True, (0, 102, 204))
-    text1 = font.render(f"HP: {HP}", True, (0, 102, 204))
-    text2 = font.render(f"FPS: {clock.get_fps()}", True, (0, 102, 204))
-    screen.blit(text, (0, 0))
-    screen.blit(text1, (600, 0))
-    screen.blit(text2, (550, 500))
-    pygame.draw.line(screen, (0, 255, 0), (0, 400), (700, 400), 1)
-
-
-def start_sc(screen):
-    font = pygame.font.SysFont('kacstbook', 30)
-    j, l = 3, 100
-    s_text = [
-        "Hello, player!",
-        "You're playing my game.",
-        "So, you need to know rules, don't you?",
-        "Here they are:",
-        "You can shoot the red squares.",
-        "Ten score points and you get one more HP.",
-        "You need HP to destroy red squares using your body.",
-        "No HP - you're defeated.",
-        "If you miss a red square - you're defeated too.",
-        "Left-click - start the game.",
-        "ESC - exit the game.",
-        "Created by Ho1ocron."
-    ]
-    for i in s_text:
-        screen.blit(font.render(i, True, (0, 102, 204)), (j, l))
-        l+=40
-
-def enemy_spawn_fun():
-    global enemy_number, enemy_first_spawn
-    if enemy_first_spawn:
-        for _ in range(enemy_number):
-            Enemy()
-            enemy_first_spawn = False
-    else:
-        for i in range(q):
-            Enemy()
-
-
-def clear():
-    for i in all_sprites:
-        i.kill()
-
-def start():
-    global enemy_first_spawn, enemy_number, enemy_HP, enemy_alive, enemy_spawn, q, SCORE, DEFEAT, HP, START, clock
-    pygame.init()
-    size = (700, 700)
-    BLACK = (0,0,0)
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Chippin'In")
-    screen.fill(BLACK)
-    fps = 120
-    clock = pygame.time.Clock()
-
-
-    player1 = Player(110, 510)
-    DEFEAT = False
-    SCORE = 0
-    HP = 5
-    START = True
-    print(all_sprites)
-
-    enemy_number = 5
-    enemy_HP = random.randint(1, 5)
-    enemy_spawn = False
-    enemy_alive = False
-    enemy_first_spawn = True
-    q = 1
-
-    t_Edge()
-    b_Edge()
-
-
-    while True:
-        screen.fill(BLACK)
-        while START:
-            start_sc(screen)
-            for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        START = False
-                        sys.exit()
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        if event.button == 1:
-                            START = False
-            pygame.display.flip()
-        all_sprites.draw(screen)
-            
-        for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        player1.shoot()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        sys.exit()
-                    if event.key == pygame.K_TAB:
-                        clear()
-        player1.update()
-        score(screen)
-        #print(all_sprites)
-
-        if not enemy_spawn:
-            enemy_spawn_fun()
-            enemy_spawn = True
-        if enemy_alive:
-            enemy_spawn = False
-            enemy_alive = False
-        if HP == 0:
-            DEFEAT = True
-        if DEFEAT:
-            defeat_sc(screen)
-            pygame.mouse.set_visible(True)
-
-        all_sprites.update()
-        clock.tick(fps)
-        pygame.display.flip()
-
-if __name__ == "__main__":
-    start()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = App()
+    sys.exit(app.exec_())
