@@ -1,6 +1,6 @@
 import os
 import sys
-import MainEngine
+import New_game
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtGui import QPalette, QBrush, QPixmap
 from PyQt5.QtGui import QPalette
@@ -25,13 +25,13 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.palette = QPalette()
-        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("CR0.1.png")))
+        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("back.png")))
         self.setPalette(self.palette)
 
         #: start button
         self.button = QPushButton('Start', self)
         self.button.setFont(QFont('Arial', 40))
-        self.button.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button.setStyleSheet("#MainWindow{border-image:url(back.png)}")
         self.button.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
         self.button.setToolTip('This is an example button')
         self.button.resize(200, 50)
@@ -41,7 +41,7 @@ class App(QWidget):
         #: map button
         self.button1 = QPushButton('Map', self)
         self.button1.setFont(QFont('Arial', 40))
-        self.button1.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button1.setStyleSheet("#MainWindow{border-image:url(back.png)}")
         self.button1.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
         self.button1.setToolTip('This is an example button')
         self.button1.resize(200, 50)
@@ -51,7 +51,7 @@ class App(QWidget):
         #: shop button
         self.button2 = QPushButton('Shop', self)
         self.button2.setFont(QFont('Arial', 40))
-        self.button2.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button2.setStyleSheet("#MainWindow{border-image:url(back.png)}")
         self.button2.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
         self.button2.setToolTip('This is an example button')
         self.button2.resize(200, 50)
@@ -61,7 +61,7 @@ class App(QWidget):
         # special button
         self.button3 = QPushButton('Special', self)
         self.button3.setFont(QFont('Arial', 40))
-        self.button3.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button3.setStyleSheet("#MainWindow{border-image:url(back.png)}")
         self.button3.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
         self.button3.setToolTip('This is an example button')
         self.button3.resize(200, 50)
@@ -71,7 +71,7 @@ class App(QWidget):
         #: special button 2
         self.button4 = QPushButton('Exit', self)
         self.button4.setFont(QFont('Arial', 40))
-        self.button4.setStyleSheet("#MainWindow{border-image:url(CR0.png)}")
+        self.button4.setStyleSheet("#MainWindow{border-image:url(back.png)}")
         self.button4.setStyleSheet("background-color: rgba(255, 255, 255, 75);\n""border: rgba(255, 255, 255, 100);")
         self.button4.setToolTip('This is an example button')
         self.button4.resize(200, 50)
@@ -82,10 +82,11 @@ class App(QWidget):
 
     @pyqtSlot()
     def start(self):
-        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("cro1.png")))
+        self.palette.setBrush(QPalette.Background, QBrush(QPixmap("img.jpeg")))
         self.setPalette(self.palette)
         launch = threading.Timer(1, self.game)
         launch.start()
+        
 
     @pyqtSlot()
     def map(self):
@@ -93,10 +94,13 @@ class App(QWidget):
 
     @pyqtSlot()
     def shop(self):
+        self.button3.show()
         print('MAGAZIN')
 
     @pyqtSlot()
     def special(self):
+        #self.button3.deleteLater()
+        self.button3.hide()
         print('WHAAAT')
 
     @pyqtSlot()
@@ -104,7 +108,7 @@ class App(QWidget):
         sys.exit()
 
     def game(self):
-        os.system("python MainEngine.py 1")
+        os.system("python New_game.py 1")
 
 
 if __name__ == '__main__':
